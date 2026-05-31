@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEXUS Portal — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <header>
+    <a href="index.html" class="logo"><div class="logo-icon">NX</div>NEX<span>US</span></a>
+    <div class="header-right"><span class="portal-badge">v2.0 Portal</span></div>
+  </header>
+
+  <nav>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="nav-dot"></span>Home</a></li>
+      <li><a href="portfolio.html"><span class="nav-dot"></span>Portfolio</a></li>
+      <li><a href="todo.html"><span class="nav-dot"></span>To-Do</a></li>
+      <li><a href="quiz.html"><span class="nav-dot"></span>Quiz</a></li>
+      <li><a href="shop.html"><span class="nav-dot"></span>Shop</a></li>
+    </ul>
+  </nav>
+
+  <main class="page">
+    <div class="hero">
+      <div class="hero-content">
+        <div class="hero-label">Welcome to your hub</div>
+        <h1>
+          <div class="line"><span>Your <span class="accent-word">Digital</span></span></div>
+          <div class="line"><span>Space for</span></div>
+          <div class="line"><span class="dim-word">Everything.</span></div>
+        </h1>
+        <p class="hero-desc">NEXUS is your all-in-one web portal — manage your portfolio, crush your tasks, challenge yourself with quizzes, and explore the shop. All in one place.</p>
+        <div class="hero-actions">
+          <a href="portfolio.html" class="btn-primary">View Portfolio</a>
+          <a href="todo.html" class="btn-ghost">My Tasks</a>
+        </div>
+        <div class="hero-badges">
+          <a href="portfolio.html" class="hero-badge" style="text-decoration:none;color:inherit">
+            <span class="badge-icon">🎨</span>
+            <div><div class="badge-text">Portfolio</div><div class="badge-sub">Showcase your work</div></div>
+          </a>
+          <a href="todo.html" class="hero-badge" style="text-decoration:none;color:inherit">
+            <span class="badge-icon">✔</span>
+            <div><div class="badge-text">To-Do</div><div class="badge-sub">Stay organized</div></div>
+          </a>
+          <a href="quiz.html" class="hero-badge" style="text-decoration:none;color:inherit">
+            <span class="badge-icon">⚡</span>
+            <div><div class="badge-text">Quiz Arena</div><div class="badge-sub">Test your knowledge</div></div>
+          </a>
+          <a href="shop.html" class="hero-badge" style="text-decoration:none;color:inherit">
+            <span class="badge-icon">🛒</span>
+            <div><div class="badge-text">Shop</div><div class="badge-sub">Digital goods</div></div>
+          </a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="orbit-ring">
+          <div class="orbit-dot"></div>
+          <div class="orbit-dot-2"></div>
+          <div class="orbit-ring-2"></div>
+          <div class="center-sphere"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-bar" id="statsBar">
+      <div class="stat"><div class="stat-num" id="statProjects">0</div><div class="stat-label">Projects</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-num" id="statTasks">0</div><div class="stat-label">Tasks Done</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-num" id="statQuiz">0</div><div class="stat-label">Quiz Score</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-num" id="statCart">0</div><div class="stat-label">Cart Items</div></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-copy"><span class="status-dot"></span>© 2026 NEXUS Portal. All rights reserved.</span>
+      <div class="footer-links-row">
+        <a href="portfolio.html">Portfolio</a>
+        <a href="todo.html">To-Do</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="shop.html">Shop</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const projects = JSON.parse(localStorage.getItem('nexus_projects') || '[]');
+      const todos    = JSON.parse(localStorage.getItem('nexus_todos')    || '[]');
+      const quiz     = JSON.parse(localStorage.getItem('nexus_quiz')     || '{"best":0}');
+      const cart     = JSON.parse(localStorage.getItem('nexus_cart')     || '[]');
+      document.getElementById('statProjects').textContent = projects.length;
+      document.getElementById('statTasks').textContent    = todos.filter(t => t.done).length;
+      document.getElementById('statQuiz').textContent     = (quiz.best || 0) + '%';
+      document.getElementById('statCart').textContent     = cart.length;
+    });
+  </script>
+</body>
+</html>

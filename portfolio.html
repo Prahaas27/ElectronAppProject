@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEXUS — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <header>
+    <a href="index.html" class="logo"><div class="logo-icon">NX</div>NEX<span>US</span></a>
+    <div class="header-right"><span class="portal-badge">Portfolio</span></div>
+  </header>
+
+  <nav>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="nav-dot"></span>Home</a></li>
+      <li><a href="portfolio.html"><span class="nav-dot"></span>Portfolio</a></li>
+      <li><a href="todo.html"><span class="nav-dot"></span>To-Do</a></li>
+      <li><a href="quiz.html"><span class="nav-dot"></span>Quiz</a></li>
+      <li><a href="shop.html"><span class="nav-dot"></span>Shop</a></li>
+    </ul>
+  </nav>
+
+  <main class="page">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <div class="section-label">My Work</div>
+        <div class="section-title" style="margin-bottom:0">Selected <em>Projects</em></div>
+      </div>
+      <button class="btn-primary" onclick="openModal('addProjectModal')">+ Add Project</button>
+    </div>
+
+    <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;" id="tagFilters"></div>
+
+    <div class="cards-grid" id="projectsGrid"></div>
+  </main>
+
+  <!-- Add Project Modal -->
+  <div class="modal-overlay" id="addProjectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">New Project</div>
+        <button class="modal-close" onclick="closeModal('addProjectModal')">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Name *</label>
+        <input type="text" class="form-input" id="projName" placeholder="e.g. My Portfolio Website"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description *</label>
+        <textarea class="form-textarea" id="projDesc" rows="3" placeholder="Brief description of the project..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tech Stack (comma separated)</label>
+          <input type="text" class="form-input" id="projTech" placeholder="HTML, CSS, JS"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="projCategory">
+            <option value="Web">Web</option>
+            <option value="Mobile">Mobile</option>
+            <option value="Design">Design</option>
+            <option value="Backend">Backend</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project URL (optional)</label>
+        <input type="url" class="form-input" id="projUrl" placeholder="https://..."/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji Icon</label>
+        <input type="text" class="form-input" id="projEmoji" placeholder="🌐" maxlength="2"/>
+      </div>
+      <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:0.5rem;">
+        <button class="btn-ghost" onclick="closeModal('addProjectModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveProject()">Save Project</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-copy"><span class="status-dot"></span>© 2026 NEXUS Portal.</span>
+      <div class="footer-links-row">
+        <a href="index.html">Home</a><a href="todo.html">To-Do</a><a href="quiz.html">Quiz</a><a href="shop.html">Shop</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    const EMOJIS = ['🌐','📱','🎯','🚀','⚡','🎨','📦','🔧','💡','🎮','📊','🤖'];
+    let activeFilter = 'All';
+
+    function getProjects() { return JSON.parse(localStorage.getItem('nexus_projects') || '[]'); }
+    function saveProjects(p) { localStorage.setItem('nexus_projects', JSON.stringify(p)); }
+
+    function renderProjects() {
+      const projects = getProjects();
+      const grid = document.getElementById('projectsGrid');
+      const filtered = activeFilter === 'All' ? projects : projects.filter(p => p.category === activeFilter);
+
+      // Tag filters
+      const cats = ['All', ...new Set(projects.map(p => p.category))];
+      document.getElementById('tagFilters').innerHTML = cats.map(c =>
+        `<button class="filter-btn ${c === activeFilter ? 'active' : ''}" onclick="setFilter('${c}')">${c}</button>`
+      ).join('');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">🎨</span><p>No projects yet. Click <strong>+ Add Project</strong> to get started!</p></div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((p, i) => `
+        <div class="proj-card">
+          <div class="proj-card-header">
+            <span style="font-size:2rem">${p.emoji || '🌐'}</span>
+            <div class="proj-actions">
+              ${p.url ? `<a href="${p.url}" target="_blank" class="proj-link">↗ Visit</a>` : ''}
+              <button class="btn-danger" onclick="deleteProject(${p.id})">Delete</button>
+            </div>
+          </div>
+          <div class="card-name">${p.name}</div>
+          <div class="card-desc">${p.desc}</div>
+          <div style="margin-top:0.5rem">
+            <span class="card-tag">${p.category}</span>
+            ${(p.tech || '').split(',').filter(Boolean).map(t => `<span class="card-tag" style="background:rgba(124,111,255,0.08);color:var(--accent2);border-color:rgba(124,111,255,0.15)">${t.trim()}</span>`).join('')}
+          </div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:0.85rem">${new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+        </div>
+      `).join('');
+    }
+
+    function setFilter(cat) { activeFilter = cat; renderProjects(); }
+
+    function saveProject() {
+      const name  = document.getElementById('projName').value.trim();
+      const desc  = document.getElementById('projDesc').value.trim();
+      if (!name || !desc) { showToast('Please fill in required fields.', 'error'); return; }
+      const projects = getProjects();
+      projects.unshift({
+        id: Date.now(), name, desc,
+        tech:     document.getElementById('projTech').value,
+        category: document.getElementById('projCategory').value,
+        url:      document.getElementById('projUrl').value,
+        emoji:    document.getElementById('projEmoji').value || EMOJIS[Math.floor(Math.random()*EMOJIS.length)],
+        date:     new Date().toISOString()
+      });
+      saveProjects(projects);
+      closeModal('addProjectModal');
+      document.getElementById('projName').value = '';
+      document.getElementById('projDesc').value = '';
+      document.getElementById('projTech').value = '';
+      document.getElementById('projUrl').value  = '';
+      document.getElementById('projEmoji').value = '';
+      showToast('Project added!');
+      renderProjects();
+    }
+
+    function deleteProject(id) {
+      if (!confirm('Delete this project?')) return;
+      saveProjects(getProjects().filter(p => p.id !== id));
+      showToast('Project deleted.');
+      renderProjects();
+    }
+
+    renderProjects();
+  </script>
+</body>
+</html>

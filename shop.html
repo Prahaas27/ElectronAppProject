@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEXUS — Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <header>
+    <a href="index.html" class="logo"><div class="logo-icon">NX</div>NEX<span>US</span></a>
+    <div class="header-right">
+      <span class="portal-badge">Shop</span>
+      <button class="btn-ghost" style="padding:8px 16px;font-size:0.8rem" onclick="openModal('cartModal')">
+        🛒 Cart <span class="cart-count" id="cartBadge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <nav>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="nav-dot"></span>Home</a></li>
+      <li><a href="portfolio.html"><span class="nav-dot"></span>Portfolio</a></li>
+      <li><a href="todo.html"><span class="nav-dot"></span>To-Do</a></li>
+      <li><a href="quiz.html"><span class="nav-dot"></span>Quiz</a></li>
+      <li><a href="shop.html"><span class="nav-dot"></span>Shop</a></li>
+    </ul>
+  </nav>
+
+  <main class="page">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <div class="section-label">Digital Goods</div>
+        <div class="section-title" style="margin-bottom:0">The <em>Shop</em></div>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap" id="categoryFilters"></div>
+    </div>
+
+    <div class="shop-grid" id="shopGrid"></div>
+  </main>
+
+  <!-- Cart Modal -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <div class="modal-title">🛒 Your Cart</div>
+        <button class="modal-close" onclick="closeModal('cartModal')">✕</button>
+      </div>
+      <div id="cartItems"></div>
+      <div class="cart-total" id="cartTotal" style="display:none">
+        <span>Total</span><span id="totalAmount" style="color:var(--accent)"></span>
+      </div>
+      <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1.5rem;flex-wrap:wrap" id="cartActions"></div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Checkout</div>
+        <button class="modal-close" onclick="closeModal('checkoutModal')">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        <input type="text" class="form-input" id="coName" placeholder="John Doe"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input type="email" class="form-input" id="coEmail" placeholder="john@example.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Card Number *</label>
+        <input type="text" class="form-input" id="coCard" placeholder="1234 5678 9012 3456" maxlength="19"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Expiry *</label>
+          <input type="text" class="form-input" id="coExpiry" placeholder="MM/YY" maxlength="5"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CVV *</label>
+          <input type="text" class="form-input" id="coCvv" placeholder="123" maxlength="3"/>
+        </div>
+      </div>
+      <div style="background:rgba(0,245,196,0.06);border:1px solid rgba(0,245,196,0.15);border-radius:10px;padding:1rem;margin-bottom:1.25rem;font-size:0.83rem;color:var(--muted)">
+        🔒 This is a demo checkout. No real payment is processed.
+      </div>
+      <div style="display:flex;gap:1rem;justify-content:flex-end">
+        <button class="btn-ghost" onclick="closeModal('checkoutModal')">Cancel</button>
+        <button class="btn-primary" onclick="placeOrder()">Place Order</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-copy"><span class="status-dot"></span>© 2026 NEXUS Portal.</span>
+      <div class="footer-links-row">
+        <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="todo.html">To-Do</a><a href="quiz.html">Quiz</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+  const PRODUCTS = [
+    {id:1, name:'Nexus UI Kit',      desc:'50+ premium components for modern web apps.',       price:29, emoji:'📦', category:'Templates', bg:'#1a1040'},
+    {id:2, name:'Dark Dashboard',    desc:'Sleek admin dashboard template with charts.',        price:49, emoji:'📊', category:'Templates', bg:'#0d1f2d'},
+    {id:3, name:'Icon Pack Pro',     desc:'1000+ hand-crafted icons in SVG & PNG.',             price:19, emoji:'🎨', category:'Design',    bg:'#1a0d20'},
+    {id:4, name:'Landing Page Pack', desc:'10 stunning landing page designs ready to deploy.',  price:39, emoji:'🚀', category:'Templates', bg:'#0d1a10'},
+    {id:5, name:'CSS Animations',    desc:'100+ smooth CSS animation snippets & effects.',      price:15, emoji:'✨', category:'Code',      bg:'#1a1a0d'},
+    {id:6, name:'React Component Lib',desc:'Reusable React components with Tailwind CSS.',     price:59, emoji:'⚛️', category:'Code',      bg:'#0d1020'},
+    {id:7, name:'Web Dev Guide',     desc:'Complete guide from HTML basics to full-stack.',     price:24, emoji:'📚', category:'Ebooks',    bg:'#1a100d'},
+    {id:8, name:'Design Principles', desc:'E-book covering modern UI/UX design patterns.',     price:18, emoji:'🎯', category:'Ebooks',    bg:'#0d1a1a'},
+    {id:9, name:'Font Collection',   desc:'50 premium fonts licensed for commercial use.',      price:35, emoji:'🔤', category:'Design',    bg:'#1a0d0d'},
+  ];
+
+  let activeCategory = 'All';
+
+  function getCart() { return JSON.parse(localStorage.getItem('nexus_cart') || '[]'); }
+  function saveCart(c) { localStorage.setItem('nexus_cart', JSON.stringify(c)); updateBadge(); }
+  function updateBadge() { document.getElementById('cartBadge').textContent = getCart().length; }
+
+  function renderShop() {
+    const cats = ['All', ...new Set(PRODUCTS.map(p => p.category))];
+    document.getElementById('categoryFilters').innerHTML = cats.map(c =>
+      `<button class="filter-btn ${c===activeCategory?'active':''}" onclick="filterShop('${c}')">${c}</button>`
+    ).join('');
+
+    const filtered = activeCategory === 'All' ? PRODUCTS : PRODUCTS.filter(p => p.category === activeCategory);
+    const cart = getCart();
+
+    document.getElementById('shopGrid').innerHTML = filtered.map(p => {
+      const inCart = cart.some(c => c.id === p.id);
+      return `
+        <div class="shop-card">
+          <div class="shop-card-img" style="background:${p.bg}">${p.emoji}</div>
+          <div class="shop-card-body">
+            <div class="shop-card-name">${p.name}</div>
+            <div class="shop-card-desc">${p.desc}</div>
+            <div style="margin-bottom:1rem"><span class="card-tag">${p.category}</span></div>
+            <div class="shop-card-footer">
+              <div class="shop-price">$${p.price}</div>
+              ${inCart
+                ? `<button class="btn-danger" onclick="removeFromCart(${p.id})">Remove</button>`
+                : `<button class="btn-primary" style="padding:9px 18px;font-size:0.82rem" onclick="addToCart(${p.id})">Add to Cart</button>`}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function filterShop(cat) { activeCategory = cat; renderShop(); }
+
+  function addToCart(id) {
+    const cart = getCart();
+    if (cart.some(c => c.id === id)) return;
+    const product = PRODUCTS.find(p => p.id === id);
+    cart.push(product);
+    saveCart(cart);
+    showToast(`${product.emoji} Added to cart!`);
+    renderShop();
+  }
+
+  function removeFromCart(id) {
+    saveCart(getCart().filter(c => c.id !== id));
+    showToast('Item removed.');
+    renderShop();
+    renderCart();
+  }
+
+  function renderCart() {
+    const cart = getCart();
+    const total = cart.reduce((s,p) => s + p.price, 0);
+    const container = document.getElementById('cartItems');
+    const totalEl   = document.getElementById('cartTotal');
+    const actionsEl = document.getElementById('cartActions');
+
+    if (cart.length === 0) {
+      container.innerHTML = `<div class="empty-state"><span class="empty-icon">🛒</span><p>Your cart is empty.</p></div>`;
+      totalEl.style.display   = 'none';
+      actionsEl.innerHTML = `<button class="btn-ghost" onclick="closeModal('cartModal')">Continue Shopping</button>`;
+      return;
+    }
+
+    container.innerHTML = cart.map(p => `
+      <div class="cart-item">
+        <span>${p.emoji} ${p.name}</span>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <span style="color:var(--accent);font-weight:700">$${p.price}</span>
+          <button class="btn-danger" onclick="removeFromCart(${p.id})">✕</button>
+        </div>
+      </div>`).join('');
+
+    totalEl.style.display = 'flex';
+    document.getElementById('totalAmount').textContent = '$' + total;
+    actionsEl.innerHTML = `
+      <button class="btn-danger" onclick="clearCart()">Clear Cart</button>
+      <button class="btn-ghost" onclick="closeModal('cartModal')">Continue Shopping</button>
+      <button class="btn-primary" onclick="closeModal('cartModal');openModal('checkoutModal')">Checkout →</button>`;
+  }
+
+  function clearCart() {
+    saveCart([]);
+    renderShop();
+    renderCart();
+    showToast('Cart cleared.');
+  }
+
+  function formatCard(input) {
+    let v = input.value.replace(/\D/g,'').substring(0,16);
+    input.value = v.replace(/(.{4})/g,'$1 ').trim();
+  }
+  function formatExpiry(input) {
+    let v = input.value.replace(/\D/g,'');
+    if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+    input.value = v;
+  }
+
+  function placeOrder() {
+    const name   = document.getElementById('coName').value.trim();
+    const email  = document.getElementById('coEmail').value.trim();
+    const card   = document.getElementById('coCard').value.trim();
+    const expiry = document.getElementById('coExpiry').value.trim();
+    const cvv    = document.getElementById('coCvv').value.trim();
+    if (!name || !email || !card || !expiry || !cvv) { showToast('Please fill all fields.', 'error'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Invalid email address.', 'error'); return; }
+
+    const cart  = getCart();
+    const total = cart.reduce((s,p) => s + p.price, 0);
+    const orders = JSON.parse(localStorage.getItem('nexus_orders') || '[]');
+    orders.push({ id: Date.now(), name, email, items: cart, total, date: new Date().toISOString() });
+    localStorage.setItem('nexus_orders', JSON.stringify(orders));
+
+    saveCart([]);
+    closeModal('checkoutModal');
+    renderShop();
+    showToast(`🎉 Order placed! Total: $${total}`);
+    ['coName','coEmail','coCard','coExpiry','coCvv'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  // Card input formatting
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('coCard')?.addEventListener('input', e => formatCard(e.target));
+    document.getElementById('coExpiry')?.addEventListener('input', e => formatExpiry(e.target));
+    document.getElementById('cartModal')?.addEventListener('click', () => {});
+  });
+
+  // Override openModal for cart to also render
+  const _open = window.openModal;
+  window.openModal = function(id) {
+    if (id === 'cartModal') renderCart();
+    _open(id);
+  };
+
+  updateBadge();
+  renderShop();
+  </script>
+</body>
+</html>

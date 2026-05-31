@@ -1,0 +1,16 @@
+{
+  "name": "smart-student-portal",
+  "version": "1.0.0",
+  "main": "main.js",
+  "description": "About Portal",
+    "scripts": {
+      "start": "electron .",
+      "test": "echo \"Error no test test specified\" && exit 1"
+    },
+    "author": "K.Sri Vishnu Prahaas",
+    "license": "Prahaas_09",
+  "devDependencies": {
+    "electron": "^41.5.0"
+  }
+
+}

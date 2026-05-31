@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEXUS — To-Do</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <header>
+    <a href="index.html" class="logo"><div class="logo-icon">NX</div>NEX<span>US</span></a>
+    <div class="header-right"><span class="portal-badge">Task Manager</span></div>
+  </header>
+
+  <nav>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="nav-dot"></span>Home</a></li>
+      <li><a href="portfolio.html"><span class="nav-dot"></span>Portfolio</a></li>
+      <li><a href="todo.html"><span class="nav-dot"></span>To-Do</a></li>
+      <li><a href="quiz.html"><span class="nav-dot"></span>Quiz</a></li>
+      <li><a href="shop.html"><span class="nav-dot"></span>Shop</a></li>
+    </ul>
+  </nav>
+
+  <main class="page">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <div class="section-label">Task Manager</div>
+        <div class="section-title" style="margin-bottom:0">Your <em>To-Do List</em></div>
+      </div>
+      <button class="btn-danger" onclick="clearDone()">Clear Completed</button>
+    </div>
+
+    <div class="stats-bar" style="margin-bottom:1.5rem">
+      <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-num" id="statDone">0</div><div class="stat-label">Done</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-num" id="statPercent">0%</div><div class="stat-label">Complete</div></div>
+    </div>
+
+    <!-- Add Task -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.5rem;margin-bottom:1.5rem">
+      <div class="form-row" style="margin-bottom:1rem">
+        <div class="form-group" style="margin-bottom:0;grid-column:1/-1">
+          <input type="text" class="form-input" id="taskInput" placeholder="What needs to be done?"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <select class="form-select" id="taskPriority">
+            <option value="medium">Medium Priority</option>
+            <option value="high">High Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <input type="date" class="form-input" id="taskDue"/>
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;justify-content:flex-end">
+        <button class="btn-primary" onclick="addTask()">+ Add Task</button>
+      </div>
+    </div>
+
+    <div class="todo-filters" id="todoFilters">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+      <button class="filter-btn" onclick="setFilter('done',this)">Completed</button>
+      <button class="filter-btn" onclick="setFilter('high',this)">🔴 High</button>
+      <button class="filter-btn" onclick="setFilter('medium',this)">🟡 Medium</button>
+      <button class="filter-btn" onclick="setFilter('low',this)">🟢 Low</button>
+    </div>
+
+    <ul class="todo-list" id="todoList"></ul>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-copy"><span class="status-dot"></span>© 2026 NEXUS Portal.</span>
+      <div class="footer-links-row">
+        <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="quiz.html">Quiz</a><a href="shop.html">Shop</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    let currentFilter = 'all';
+    function getTodos() { return JSON.parse(localStorage.getItem('nexus_todos') || '[]'); }
+    function saveTodos(t) { localStorage.setItem('nexus_todos', JSON.stringify(t)); }
+
+    function renderTodos() {
+      const todos = getTodos();
+      const done  = todos.filter(t => t.done).length;
+      document.getElementById('statTotal').textContent   = todos.length;
+      document.getElementById('statPending').textContent = todos.length - done;
+      document.getElementById('statDone').textContent    = done;
+      document.getElementById('statPercent').textContent = todos.length ? Math.round(done/todos.length*100)+'%' : '0%';
+
+      let filtered = todos;
+      if (currentFilter === 'pending') filtered = todos.filter(t => !t.done);
+      else if (currentFilter === 'done') filtered = todos.filter(t => t.done);
+      else if (['high','medium','low'].includes(currentFilter)) filtered = todos.filter(t => t.priority === currentFilter);
+
+      const list = document.getElementById('todoList');
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-state"><span class="empty-icon">✅</span><p>${currentFilter==='done'?'No completed tasks yet.':'Nothing here! Add a task above.'}</p></div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(t => `
+        <li class="todo-item ${t.done ? 'done' : ''}">
+          <div class="todo-check ${t.done ? 'checked' : ''}" onclick="toggleTodo(${t.id})">${t.done ? '✔' : ''}</div>
+          <div class="todo-text">
+            <div>${t.text}</div>
+            ${t.due ? `<div style="font-size:0.72rem;color:var(--muted);margin-top:2px">Due: ${new Date(t.due+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` : ''}
+          </div>
+          <span class="todo-priority priority-${t.priority}">${t.priority}</span>
+          <button class="btn-danger" onclick="deleteTask(${t.id})">✕</button>
+        </li>
+      `).join('');
+    }
+
+    function addTask() {
+      const text = document.getElementById('taskInput').value.trim();
+      if (!text) { showToast('Please enter a task.', 'error'); return; }
+      const todos = getTodos();
+      todos.unshift({
+        id:       Date.now(),
+        text,
+        priority: document.getElementById('taskPriority').value,
+        due:      document.getElementById('taskDue').value,
+        done:     false,
+        created:  new Date().toISOString()
+      });
+      saveTodos(todos);
+      document.getElementById('taskInput').value = '';
+      document.getElementById('taskDue').value   = '';
+      showToast('Task added!');
+      renderTodos();
+    }
+
+    function toggleTodo(id) {
+      const todos = getTodos().map(t => t.id === id ? {...t, done: !t.done} : t);
+      saveTodos(todos);
+      renderTodos();
+    }
+
+    function deleteTask(id) {
+      saveTodos(getTodos().filter(t => t.id !== id));
+      showToast('Task removed.');
+      renderTodos();
+    }
+
+    function clearDone() {
+      const todos = getTodos().filter(t => !t.done);
+      saveTodos(todos);
+      showToast('Completed tasks cleared.');
+      renderTodos();
+    }
+
+    function setFilter(f, btn) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTodos();
+    }
+
+    document.getElementById('taskInput').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+    renderTodos();
+  </script>
+</body>
+</html>
